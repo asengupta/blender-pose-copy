@@ -12,6 +12,7 @@ You will need to modify this script in the following way to use it effectively:
 ```
 SOURCE_ARMATURE_NAME = "[YOUR_REST_POSE_ARMATURE_WITHOUT_ANIMATION]"
 TARGET_ARMATURE_NAME = "[YOUR_ANIMATED_ARMATURE_WITHOUT_REST_POSE]"
+ROOT_BONE_ID = "[ROOT_BONE_OF_POSE_TO_COPY]"
 ```
 
 Also modify the following line:
@@ -20,3 +21,4 @@ Also modify the following line:
 build_keyframes([ARRAY_OF_FRAME_NUMBERS])
 ```
 
+You may choose to forgo building keyframes altogether, and simpl

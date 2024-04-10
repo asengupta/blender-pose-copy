@@ -4,8 +4,9 @@ import bpy
 
 bpy.app.handlers.frame_change_post.clear()
 
-SOURCE_ARMATURE_NAME = "Rest Pose Armature.002"
-TARGET_ARMATURE_NAME = "Armature.024"
+SOURCE_ARMATURE_NAME = "Rest Pose Armature.Original.001"
+TARGET_ARMATURE_NAME = "Spear Walk.001"
+ROOT_BONE_ID = "Master"
 
 source_armature = bpy.data.objects.get(SOURCE_ARMATURE_NAME)
 target_armature = bpy.data.objects.get(TARGET_ARMATURE_NAME)
@@ -42,17 +43,19 @@ def insert_keyframe(armature, frame):
         bone.keyframe_insert(data_path="location", frame = frame)
         bone.keyframe_insert(data_path="rotation_quaternion", frame = frame)
 
-def keyframe_insert_frame_handler(scene):
-    frame = scene.frame_current
-    print("Current frame is {}".format(frame))
-    bpy.ops.object.mode_set(mode='OBJECT')
-    bpy.context.view_layer.objects.active = source_armature
-    source_armature.select_set(True)
-    bpy.ops.object.mode_set(mode='POSE')
-    clear_pose()
-    pose_recursively("Master", root_bone_tree)
-    bpy.ops.object.mode_set(mode='OBJECT')
-    insert_keyframe(source_armature, frame)
+def keyframe_insert_frame_handler_builder(root_bone_name):
+    def keyframe_insert_frame_handler(scene):
+        frame = scene.frame_current
+        print("Current frame is {}".format(frame))
+        bpy.ops.object.mode_set(mode='OBJECT')
+        bpy.context.view_layer.objects.active = source_armature
+        source_armature.select_set(True)
+        bpy.ops.object.mode_set(mode='POSE')
+        clear_pose()
+        pose_recursively(root_bone_name, root_bone_tree)
+        bpy.ops.object.mode_set(mode='OBJECT')
+        insert_keyframe(source_armature, frame)
+    return keyframe_insert_frame_handler
 
 def deselect_all():
     for ob in bpy.context.selected_objects:
@@ -62,12 +65,13 @@ def build_keyframes(frame_numbers):
     for frame in frame_numbers:
         bpy.context.scene.frame_set(frame)
 
-bpy.app.handlers.frame_change_post.append(keyframe_insert_frame_handler)
+handler = keyframe_insert_frame_handler_builder(ROOT_BONE_ID)
+bpy.app.handlers.frame_change_post.append(handler)
 
-root_bone_tree = hierarchy(source_bones["Master"])
+root_bone_tree = hierarchy(source_bones[ROOT_BONE_ID])
 
 deselect_all()
-bpy.ops.object.mode_set(mode='POSE')
+
 build_keyframes(range(1,45))
 
 print("Unregistering handler")
