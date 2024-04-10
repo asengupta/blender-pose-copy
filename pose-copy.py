@@ -38,21 +38,29 @@ def pose_recursively(bone_name, bone_tree):
     for child_name, child_tree in bone_tree.items():
         pose_recursively(child_name, child_tree)
 
+def pose_once(bone_name):
+    root_bone_tree = hierarchy(source_bones[bone_name])
+    pose_internal(bone_name, root_bone_tree)
+
+def pose_internal(bone_name, root_bone_tree):
+    bpy.ops.object.mode_set(mode='OBJECT')
+    bpy.context.view_layer.objects.active = source_armature
+    source_armature.select_set(True)
+    bpy.ops.object.mode_set(mode='POSE')
+    clear_pose()
+    pose_recursively(bone_name, root_bone_tree)
+
 def insert_keyframe(armature, frame):
     for bone in armature.pose.bones:
         bone.keyframe_insert(data_path="location", frame = frame)
         bone.keyframe_insert(data_path="rotation_quaternion", frame = frame)
 
 def keyframe_insert_frame_handler_builder(root_bone_name):
+    root_bone_tree = hierarchy(source_bones[root_bone_name])
     def keyframe_insert_frame_handler(scene):
         frame = scene.frame_current
         print("Current frame is {}".format(frame))
-        bpy.ops.object.mode_set(mode='OBJECT')
-        bpy.context.view_layer.objects.active = source_armature
-        source_armature.select_set(True)
-        bpy.ops.object.mode_set(mode='POSE')
-        clear_pose()
-        pose_recursively(root_bone_name, root_bone_tree)
+        pose_internal(root_bone_name, root_bone_tree)
         bpy.ops.object.mode_set(mode='OBJECT')
         insert_keyframe(source_armature, frame)
     return keyframe_insert_frame_handler
@@ -68,10 +76,11 @@ def build_keyframes(frame_numbers):
 handler = keyframe_insert_frame_handler_builder(ROOT_BONE_ID)
 bpy.app.handlers.frame_change_post.append(handler)
 
-root_bone_tree = hierarchy(source_bones[ROOT_BONE_ID])
+#root_bone_tree = hierarchy(source_bones[ROOT_BONE_ID])
 
 deselect_all()
 
+#pose_once(ROOT_BONE_ID)
 build_keyframes(range(1,45))
 
 print("Unregistering handler")

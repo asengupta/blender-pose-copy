@@ -21,4 +21,8 @@ Also modify the following line:
 build_keyframes([ARRAY_OF_FRAME_NUMBERS])
 ```
 
-You may choose to forgo building keyframes altogether, and simpl
+You may choose to forgo building keyframes altogether, and simply choose to pose the armature (or part of it). In that case, change the frame to the target armature (which already has the animation) or pose it however you like, and then use:
+
+```
+pose_once(ROOT_BONE_ID)
+```
