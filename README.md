@@ -31,8 +31,14 @@ There is other ancilliary functionality present. Here are some ways in which you
 # Deletes all keyframes of a bone and its children
 delete_keyframe(source_armature, ROOT_BONE_ID, hierarchy(source_bones[ROOT_BONE_ID]), ALL_FRAMES)
 
+# Convenience method to do the same as the above command
+clear_animation(source_armature, ROOT_BONE_ID)
+
 # Deletes all keyframes of a bone and its children between Frames 9 and 10 (keyframe exactly at Frame 9 is not deleted, keyframe at Frame 10 is deleted)
 delete_keyframe(source_armature, ROOT_BONE_ID, hierarchy(source_bones[ROOT_BONE_ID]), SINGLE_FRAME(10))
+
+# Deletes all keyframes of a bone and its children between Frames 0 and 7 inclusive
+delete_keyframe(source_armature, ROOT_BONE_ID, hierarchy(source_bones[ROOT_BONE_ID]), FRAME_RANGE(0, 7))
 ```
 
-You can write your own delete condition by simply implementing a lambda (see ALL_FRAMES and SINGLE_FRAME implementations for examples), and passing it into ```delete_keyframe()```.
+You can write your own delete condition by simply implementing a lambda (see ALL_FRAMES, FRAME_RANGE, and SINGLE_FRAME implementations for examples), and passing it into ```delete_keyframe()```.

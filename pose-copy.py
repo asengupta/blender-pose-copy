@@ -53,6 +53,9 @@ def pose_internal(bone_name, root_bone_tree):
 def SINGLE_FRAME(frame):
     return lambda kf: (kf.co.x > frame -1 and kf.co.x <= frame)
 
+def FRAME_RANGE(start_frame, end_frame):
+    return lambda kf: (kf.co.x >= start_frame and kf.co.x <= end_frame)
+
 def ALL_FRAMES(kf):
     return True
  
@@ -70,13 +73,6 @@ def delete_keyframe_with_property(property, bone, armature, delete_condition):
             fcurve.keyframe_points.remove(points[0])
             fcurve.keyframe_points.handles_recalc()
             points = [kf for kf in fcurve.keyframe_points if delete_condition(kf)]
-#            points = [kf for kf in fcurve.keyframe_points if (kf.co.x > frame -1 and kf.co.x <= frame)]
-#        for kf in fcurve.keyframe_points:
-#            if (kf.co.x > frame -1 and kf.co.x <= frame):
-#                print("Deleting a keyframe: {}".format(kf.co))
-#                fcurve.keyframe_points.remove(kf)
-#                fcurve.keyframe_points.handles_recalc()
-#                fcurve.update()
 
 def delete_bone_keyframe(bone, armature, delete_condition):
     delete_keyframe_with_property("location", bone, armature, delete_condition)
@@ -106,9 +102,9 @@ def insert_keyframe(armature, root_bone_name, root_bone_tree, frame):
     root_bone.keyframe_insert(data_path="rotation_quaternion", frame = frame)
     insert_keyframe_recursively(frame, root_bone_tree, armature)
 
-#def clear_animation(armature, root_bone_name):
-#    root_bone_tree = hierarchy(source_bones[root_bone_name])
-#    delete_keyframe(source_armature, root_bone_name, root_bone_tree, frame)
+def clear_animation(armature, root_bone_name):
+   root_bone_tree = hierarchy(armature.pose.bones[root_bone_name])
+   delete_keyframe(armature, root_bone_name, root_bone_tree, ALL_FRAMES)
 
 def keyframe_insert_frame_handler_builder(root_bone_name):
     root_bone_tree = hierarchy(source_bones[root_bone_name])
@@ -135,8 +131,11 @@ bpy.app.handlers.frame_change_post.append(handler)
 deselect_all()
 
 #pose_once(ROOT_BONE_ID)
-delete_keyframe(source_armature, ROOT_BONE_ID, hierarchy(source_bones[ROOT_BONE_ID]), ALL_FRAMES)
-build_keyframes([0])
+#delete_keyframe(source_armature, ROOT_BONE_ID, hierarchy(source_bones[ROOT_BONE_ID]), ALL_FRAMES)
+#clear_animation(source_armature, ROOT_BONE_ID)
+delete_keyframe(source_armature, ROOT_BONE_ID, hierarchy(source_bones[ROOT_BONE_ID]), FRAME_RANGE(0, 7))
+
+#build_keyframes([0])
 
 print("Unregistering handler")
 bpy.app.handlers.frame_change_post.clear()
